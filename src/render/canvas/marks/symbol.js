@@ -69,7 +69,6 @@ function path(g, o) {
 
     // custom shape passed in
     default:
-      console.log('YO WHATTTTTTTTTTTTTTTTTTT');
       // Get parsed path that breaks down the custom shape string into command arrays
       var pathArray = parse(o.shape);
 
