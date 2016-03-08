@@ -1,6 +1,6 @@
 var arc = require('./arc');
 
-module.exports = function(g, path, l, t) {
+module.exports = function(g, path, l, t/*, shapeSize, customShape*/) {
   var current, // current instruction
       previous = null,
       x = 0, // current x
@@ -10,7 +10,20 @@ module.exports = function(g, path, l, t) {
       tempX,
       tempY,
       tempControlX,
-      tempControlY;
+      tempControlY,
+      customShape = false,
+      size,
+      tan30 = Math.tan(30 * Math.PI / 180);
+
+  // Set size if shape size is passed in
+  if (arguments.length > 4) {
+    size = arguments[4];
+  }
+
+  // Set whether path is a custom shape if it is passed in
+  if (arguments.length > 5) {
+    customShape = arguments[5];
+  }
 
   if (l == null) l = 0;
   if (t == null) t = 0;
@@ -19,6 +32,17 @@ module.exports = function(g, path, l, t) {
 
   for (var i=0, len=path.length; i<len; ++i) {
     current = path[i];
+    // evaluate handlebar equations
+    for (var j=1; j < current.length; j++) {
+      // If command is enclosed in handlebars, evaluate
+      if (typeof current[j] === 'string' && current[j].startsWith('{{') && current[j].endsWith('}}')) {
+        current[j] = eval(current[j]);
+      } 
+      // If drawing custom shape, scale by size
+      if (customShape) {
+        current[j] = current[j] *  Math.sqrt(size);
+      }
+    }
 
     switch (current[0]) { // first letter
 
