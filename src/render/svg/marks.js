@@ -1,7 +1,10 @@
 var text = require('../../util/text'),
     SVG = require('../../util/svg'),
+    parse = require('../../path/parse'),
     textAlign = SVG.textAlign,
     path = SVG.path;
+
+var tan30 = Math.tan(30 * Math.PI / 180);
 
 function translateItem(o) {
   return translate(o.x || 0, o.y || 0);
@@ -9,6 +12,39 @@ function translateItem(o) {
 
 function translate(x, y) {
   return 'translate(' + x + ',' + y + ')';
+}
+
+// Replace handlebar equations with evaluated expressions
+function evaluateExpressions(shape) {
+  var matches = shape.match(/{{.*?}}/g);
+  if (matches) {
+    for (var i = 0; i < matches.length; i++) {
+      shape = shape.replace(matches[i], eval(matches[i]));
+    }
+  }
+  return shape;
+}
+
+// Resize custom shapes to be within a square of area = size
+function resize(pathString, size) {
+  var pathArr = parse(pathString);
+  var newPath = '';
+  for (var i = 0; i < pathArr.length; i++) {
+    var commands = pathArr[i];
+    for (var j = 0; j < commands.length; j++) {
+      var current;
+      if (commands[j] === 'Z') {
+        break;
+      }
+      if ((current = +commands[j]) === current) { // if number, need to resize
+        var index = pathString.indexOf(current);
+        newPath += pathString.substring(0, index) + (current * Math.sqrt(size));
+        pathString = pathString.substring(index + current.toString().length, pathString.length);
+      }
+    }
+  }
+  newPath += 'Z';
+  return newPath;
 }
 
 module.exports = {
@@ -109,8 +145,15 @@ module.exports = {
     tag:  'path',
     type: 'symbol',
     attr: function(emit, o) {
+      var pathString;
+      if (!o.shape || d3.svg.symbolTypes.indexOf(o.shape) > -1) {
+        pathString = path.symbol(o);
+      } else { // custom expressions (calculates handlebar equations && resize)
+        var evalString = evaluateExpressions(o.shape);
+        pathString = resize(evalString, o.size);
+      }
       emit('transform', translateItem(o));
-      emit('d', path.symbol(o));
+      emit('d', pathString);
     }
   },
   text: {
