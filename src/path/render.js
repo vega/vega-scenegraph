@@ -36,7 +36,7 @@ module.exports = function(g, path, l, t/*, shapeSize, customShape*/) {
     for (var j=1; j < current.length; j++) {
       // If command is enclosed in handlebars, evaluate
       if (typeof current[j] === 'string' && current[j].startsWith('{{') && current[j].endsWith('}}')) {
-        current[j] = eval(current[j]);
+        current[j] = g.expr(current[j].substring(2, current[j].length - 2)).fn();
       } 
       // If drawing custom shape, scale by size
       if (customShape) {

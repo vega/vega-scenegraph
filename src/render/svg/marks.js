@@ -15,11 +15,12 @@ function translate(x, y) {
 }
 
 // Replace handlebar equations with evaluated expressions
-function evaluateExpressions(shape) {
+function evaluateExpressions(shape, expr) {
   var matches = shape.match(/{{.*?}}/g);
   if (matches) {
     for (var i = 0; i < matches.length; i++) {
-      shape = shape.replace(matches[i], eval(matches[i]));
+      var evalEquation = expr(matches[i].substring(2, matches[i].length - 2)).fn();
+      shape = shape.replace(matches[i], evalEquation);
     }
   }
   return shape;
@@ -145,11 +146,18 @@ module.exports = {
     tag:  'path',
     type: 'symbol',
     attr: function(emit, o) {
+      var arglen = 3,
+          argidx = 2,
+          expr;
+      if (arguments.length > argidx) {
+        expr = arguments[argidx].expr;
+      }
+
       var pathString;
       if (!o.shape || d3.svg.symbolTypes.indexOf(o.shape) > -1) {
         pathString = path.symbol(o);
       } else { // custom expressions (calculates handlebar equations && resize)
-        var evalString = evaluateExpressions(o.shape);
+        var evalString = evaluateExpressions(o.shape, expr);
         pathString = resize(evalString, o.size);
       }
       emit('transform', translateItem(o));
