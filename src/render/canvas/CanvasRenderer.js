@@ -89,6 +89,8 @@ prototype.render = function(scene, items) {
   b = clipToBounds(g, items);
   this.clear(-p.left, -p.top, w, h);
 
+  g['expr'] = this.expr;
+
   // render
   this.draw(g, scene, b);
   

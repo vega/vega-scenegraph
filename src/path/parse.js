@@ -1,14 +1,20 @@
 // Path parsing and rendering code adapted from fabric.js -- Thanks!
 var cmdlen = { m:2, l:2, h:1, v:1, c:6, s:4, q:4, t:2, a:7 },
-    regexp = [/([MLHVCSQTAZmlhvcsqtaz])/g, /###/, /(\d)([-+])/g, /\s|,|###/];
+    regexp = [/([MLHVCSQTAZmlhvcsqtaz])/g, /###/, /(\d)([-+])/g, /({{.*?}})|\s|,|###/];
 
-module.exports = function(pathstr) {
+module.exports = function(pathstr, size) {
   var result = [],
       path,
       curr,
       chunks,
       parsed, param,
-      cmd, len, i, j, n, m;
+      cmd, len, i, j, n, m,
+      handlebarCounter = 0;
+
+  // Replace handle bars first to prevent alphabets within handles 
+  // to be mistaken as commands
+  var handlebarMatches = pathstr.match(/{{.*?}}/g);
+  pathstr = pathstr.replace(/{{.*?}}/g, '{{}}');
 
   // First, break path into command sequence
   path = pathstr
@@ -24,13 +30,24 @@ module.exports = function(pathstr) {
       .slice(1)
       .trim()
       .replace(regexp[2],'$1###$2')
-      .split(regexp[3]);
+      .split(regexp[3])
+      .filter(function(n){ return n != undefined && n !== ''});
     cmd = curr.charAt(0);
 
     parsed = [cmd];
-    for (j=0, m=chunks.length; j<m; ++j) {
-      if ((param = +chunks[j]) === param) { // not NaN
-        parsed.push(param);
+
+    // If single command (for example 'Z' for close path), push in 0 to represent empty command
+    if (curr.length == 1) {
+      parsed.push(0);
+    } else  {
+      for (j=0, m=chunks.length; j<m; ++j) {
+        if ((param = +chunks[j]) === param) { // not NaN
+          parsed.push(param);
+        } else if (chunks[j] && chunks[j].startsWith('{{') && chunks[j].endsWith('}}')) { // for handlebars
+          // Add original string in handlebars back in
+          parsed.push(handlebarMatches[handlebarCounter]);
+          handlebarCounter++;
+        }
       }
     }
 
