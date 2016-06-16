@@ -1,5 +1,6 @@
 var text = require('../../util/text'),
     SVG = require('../../util/svg'),
+    symbolTypes = SVG.symbolTypes,
     textAlign = SVG.textAlign,
     path = SVG.path;
 
@@ -109,8 +110,11 @@ module.exports = {
     tag:  'path',
     type: 'symbol',
     attr: function(emit, o) {
+      var pathStr = !o.shape || symbolTypes[o.shape] ?
+        path.symbol(o) : path.resize(o.shape, o.size);
+
       emit('transform', translateItem(o));
-      emit('d', path.symbol(o));
+      emit('d', pathStr);
     }
   },
   text: {
@@ -132,7 +136,7 @@ module.exports = {
       }
 
       emit('text-anchor', textAlign[o.align] || 'start');
-      
+
       if (a) {
         t = translate(x, y) + ' rotate('+a+')';
         if (dx || dy) t += ' ' + translate(dx, dy);

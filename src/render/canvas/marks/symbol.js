@@ -1,4 +1,6 @@
-var util = require('./util');
+var util = require('./util'),
+    parse = require('../../../path/parse'),
+    render = require('../../../path/render');
 
 var sqrt3 = Math.sqrt(3),
     tan30 = Math.tan(30 * Math.PI / 180);
@@ -63,8 +65,27 @@ function path(g, o) {
       g.moveTo(x, y-ry);
       g.lineTo(x+rx, y+ry);
       g.lineTo(x-rx, y+ry);
+      break;
+
+    // custom shape
+    default:
+      var pathArray = resize(parse(o.shape), size);
+      render(g, pathArray, x, y);
   }
   g.closePath();
+}
+
+// Scale custom shapes (defined within a unit square) by given size.
+function resize(path, size) {
+  var sz = Math.sqrt(size),
+      i, n, j, m, curr;
+
+  for (i=0, n=path.length; i<n; ++i) {
+    for (curr=path[i], j=1, m=curr.length; j<m; ++j) {
+      curr[j] *= sz;
+    }
+  }
+  return path;
 }
 
 module.exports = {
