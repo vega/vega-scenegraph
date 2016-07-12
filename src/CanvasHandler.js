@@ -1,6 +1,7 @@
 import Handler from './Handler';
 import inherits from './util/inherits';
-import marks from './marks/index';
+import Marks from './marks/index';
+import point from './util/point';
 import {find} from './util/dom';
 
 export default function CanvasHandler() {
@@ -15,7 +16,7 @@ var base = Handler.prototype;
 
 prototype.initialize = function(el, pad, obj) {
   // add event listeners
-  var canvas = this._canvas = find(el, 'canvas');
+  var canvas = this._canvas = el && find(el, 'canvas');
   if (canvas) {
     var that = this;
     this.events.forEach(function(type) {
@@ -167,12 +168,9 @@ prototype.off = function(type, handler) {
 };
 
 prototype.pickEvent = function(evt) {
-  var rect = this._canvas.getBoundingClientRect(),
-      pad = this._padding, x, y;
-  return this.pick(this._scene,
-    x = (evt.clientX - rect.left),
-    y = (evt.clientY - rect.top),
-    x - pad.left, y - pad.top);
+  var p = point(evt, this._canvas),
+      pad = this._padding;
+  return this.pick(this._scene, p[0], p[1], p[0] - pad.left, p[1] - pad.top);
 };
 
 // find the scenegraph item at the current mouse position
@@ -180,6 +178,6 @@ prototype.pickEvent = function(evt) {
 // gx, gy -- the relative coordinates within the current group
 prototype.pick = function(scene, x, y, gx, gy) {
   var g = this.context(),
-      mark = marks[scene.marktype];
+      mark = Marks[scene.marktype];
   return mark.pick.call(this, g, scene, x, y, gx, gy);
 };
