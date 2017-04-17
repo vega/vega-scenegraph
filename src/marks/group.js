@@ -3,6 +3,7 @@ import boundStroke from '../bound/boundStroke';
 import {visit, pickVisit} from '../util/visit';
 import stroke from '../util/canvas/stroke';
 import fill from '../util/canvas/fill';
+import clip from '../util/svg/clip';
 import translateItem from '../util/svg/translateItem';
 
 function attr(emit, item) {
@@ -16,14 +17,8 @@ function background(emit, item) {
 }
 
 function foreground(emit, item, renderer) {
-  if (item.clip) {
-    var defs = renderer._defs,
-        id = item.clip_id || (item.clip_id = 'clip' + defs.clip_id++),
-        c = defs.clipping[id] || (defs.clipping[id] = {id: id});
-    c.width = item.width || 0;
-    c.height = item.height || 0;
-  }
-  emit('clip-path', id ? ('url(#' + id + ')') : null);
+  var url = item.clip ? clip(renderer, item, item) : null;
+  emit('clip-path', url);
 }
 
 function bound(bounds, group) {
@@ -119,7 +114,7 @@ function pick(context, scene, x, y, gx, gy) {
     dy = gy - dy;
 
     hit = pickVisit(group, function(mark) {
-      return (mark.interactive !== false || mark.marktype === 'group')
+      return pickMark(mark, dx, dy)
         ? handler.pick(mark, x, y, dx, dy)
         : null;
     });
@@ -136,6 +131,11 @@ function pick(context, scene, x, y, gx, gy) {
 
     return hit ? group : null;
   });
+}
+
+function pickMark(mark, x, y) {
+  return (mark.interactive !== false || mark.marktype === 'group')
+    && mark.bounds && mark.bounds.contains(x, y);
 }
 
 export default {
