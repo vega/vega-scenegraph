@@ -7,6 +7,4 @@ node_js:
   - "7"
   - "8"
 before_install:
-  - brew update
-  - brew install cairo
-  - brew install pango
+  - brew install pkg-config cairo pango libpng jpeg giflib
