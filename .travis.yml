@@ -13,6 +13,7 @@ addons:
     - libjpeg8-dev
     - libpango1.0-dev
     - libgif-dev
+    - build-essential
     - g++-4.9
 env:
   - CXX=g++-4.9
