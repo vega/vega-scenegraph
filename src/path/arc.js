@@ -58,8 +58,9 @@ export function segments(x, y, rx, ry, large, sweep, rotateX, ox, oy) {
     var th3 = th0 + (i+1) * th_arc / segs;
     result[i] = [xc, yc, th2, th3, rx, ry, sin_th, cos_th];
   }
+  segmentCache[key] = result;
 
-  return (segmentCache[key] = result);
+  return result;
 }
 
 export function bezier(params) {
@@ -97,9 +98,11 @@ export function bezier(params) {
   var x2 = x3 + t * sin_th1;
   var y2 = y3 - t * cos_th1;
 
-  return (bezierCache[key] = [
+  bezierCache[key] = [
     a00 * x1 + a01 * y1,  a10 * x1 + a11 * y1,
     a00 * x2 + a01 * y2,  a10 * x2 + a11 * y2,
     a00 * x3 + a01 * y3,  a10 * x3 + a11 * y3
-  ]);
+  ];
+
+  return bezierCache[key];
 }

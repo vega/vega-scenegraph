@@ -33,6 +33,7 @@ export default function(mark, bounds, opt) {
       bounds.union(boundItem(items[i], bound, opt));
     }
   }
+  mark.bounds = bounds;
 
-  return mark.bounds = bounds;
+  return bounds;
 }
