@@ -36,12 +36,10 @@ function measure(text) {
 function height(item) {
   return item.fontSize != null ? item.fontSize : 11;
 }
-
 function canvas(use) {
   context = use && (context = Canvas(1,1)) ? context.getContext('2d') : null;
   textMetrics.width = context ? measureWidth : estimateWidth;
 }
-
 export function textValue(item) {
   var s = item.text;
   if (s == null) {

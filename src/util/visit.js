@@ -15,7 +15,8 @@ export function zorder(scene) {
   }
 
   scene.zdirty = false;
-  return scene.zitems = output.sort(compare);
+  scene.zitems = output.sort(compare);
+  return scene.zitems;
 }
 
 export function visit(scene, visitor) {
