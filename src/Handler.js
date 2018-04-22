@@ -81,6 +81,6 @@ prototype.handleHref = function(event, item, href) {
 prototype.handleTooltip = function(event, item, show) {
   if (item && item.tooltip != null) {
     this._tooltip.call(this._obj, this, event, item,
-      show ? item.tooltip : null);
+      show ? item.tooltip : undefined);
   }
 };
