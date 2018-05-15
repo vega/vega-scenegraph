@@ -49,6 +49,16 @@ prototype.canvas = function() {
 };
 
 /**
+ * Returns the scene element (e.g., canvas or SVG) of the visualization
+ * Subclasses must override if the first child is not the scene element.
+ * Note: This method is deprecated, use canvas() instead.
+ * @return {DOMElement} - The scene (e.g., canvas or SVG) element.
+ */
+prototype.scene = function() {
+  return this.canvas();
+};
+
+/**
  * Get / set the background color.
  */
 prototype.background = function(bgcolor) {
